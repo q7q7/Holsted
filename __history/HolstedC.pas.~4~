@@ -1,0 +1,233 @@
+unit HolstedC;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,RegExpr, Vcl.Grids,math;
+
+type
+  THolsted = class(TForm)
+    Code: TMemo;
+    ResultAnalys: TMemo;
+    LoadFromFile: TButton;
+    DeleteComments: TButton;
+    Analys: TButton;
+    LoadFile: TOpenDialog;
+    OperatorsList: TStringGrid;
+    OperandsList: TStringGrid;
+    Операторы: TLabel;
+    lbl2: TLabel;
+    procedure FormCreate(Sender: TObject);
+    procedure LoadFromFileClick(Sender: TObject);
+    procedure DeleteCommentsClick(Sender: TObject);
+    procedure AnalysClick(Sender: TObject);
+  private
+    procedure find;
+    procedure calculation;
+    function removalExcess(var line:string):string;
+    procedure findRegex(findLine:string; var Grid:TStringGrid; n:Byte);
+  public
+    { Public declarations }
+  end;
+
+var
+  Holsted: THolsted;
+
+
+implementation
+
+{$R *.dfm}
+
+
+
+procedure THolsted.AnalysClick(Sender: TObject);
+begin
+    Find;
+    calculation;
+    Analys.Enabled := false;
+end;
+
+procedure THolsted.calculation;
+var
+   i : Byte;
+   uniqueOperators,uniqueOperands:Integer;
+   countOperators, countOperands:Integer;
+   DictionaryProgram : Double;
+   LengthProgram : Double;
+   VolumeProgram : Double;
+   PotencionalVolumeProgtram : Double;
+   TheoreticalLengthProgtram : Double;
+   LVLProgram : Double;
+   LVL2Program : Double;
+   InformationContentProgram : Double;
+   NumberOfSolutions : Double;
+   RealLengthProgram : Double;
+begin
+   if (OperatorsList.RowCount > 1) and (OperandsList.RowCount > 1) then
+   begin
+      OperatorsList.FixedRows := 1;
+      if (OperandsList.RowCount > 1)  then
+      begin
+         OperandsList.FixedRows := 1;
+         uniqueOperators := OperatorsList.RowCount - 1;
+         uniqueOperands := OperandsList.RowCount - 1;
+         countOperators := 0;
+         for i := 1 to uniqueOperators do
+            countOperators := countOperators + StrToInt(OperatorsList.cells[1,i]);
+         countOperands := 0;
+         for i := 1 to uniqueOperands do
+            countOperands := countOperands + StrToInt(OperandsList.cells[1,i]);
+         end;
+      end;
+      DictionaryProgram :=  uniqueOperators +  uniqueOperands;
+      LengthProgram :=  countOperands + countOperators ;
+      VolumeProgram :=  LengthProgram * Log2(DictionaryProgram);
+      PotencionalVolumeProgtram :=  DictionaryProgram * Log2(DictionaryProgram);
+      TheoreticalLengthProgtram := (uniqueOperators * Log2(uniqueOperators))+ (uniqueOperands * Log2(uniqueOperands));
+      LVLProgram := PotencionalVolumeProgtram / VolumeProgram ;
+      LVL2Program := (2 * uniqueOperands)/(uniqueOperators * countOperands);
+      InformationContentProgram := LVL2Program * VolumeProgram;
+      NumberOfSolutions := TheoreticalLengthProgtram * log2(DictionaryProgram / LVLProgram);
+      RealLengthProgram  := VolumeProgram * VolumeProgram / PotencionalVolumeProgtram;
+      with ResultAnalys do
+        begin
+          ResultAnalys.Lines.Add('Число уникальных операторов программы =  ' + IntToStr(uniqueOperators)+#13 + #10);
+          ResultAnalys.Lines.Add('Число уникальных операндов программы =  ' + IntToStr(uniqueOperands)+#13 + #10);
+          ResultAnalys.Lines.Add('Oбщее число операторов в программе =  ' + IntToStr(countOperators)+#13 + #10);
+          ResultAnalys.Lines.Add('Oбщее число операндов в программе =  ' + IntToStr(countOperands) +#13 + #10);
+          ResultAnalys.Lines.Add('Словарь программы =  ' + FloatToStr(DictionaryProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Длина программы =  ' + FloatToStr(LengthProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Объем программы =  ' + FloatToStr(VolumeProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Потенциальный объем программы =  ' + FloatToStr(PotencionalVolumeProgtram)+#13 + #10);
+          ResultAnalys.Lines.Add('Теоретическая длина программы =  ' + FloatToStr(TheoreticalLengthProgtram)+#13 + #10);
+          ResultAnalys.Lines.Add('Уровень программы =  ' + FloatToStr(LVLProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Уровень программы[2] =  ' + FloatToStr(LVL2Program)+#13 + #10);
+          ResultAnalys.Lines.Add('Информационное содержание программы =  ' + FloatToStr(InformationContentProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Число требуемых интеллектуальных решений =  ' + FloatToStr(NumberOfSolutions)+#13 + #10);
+          ResultAnalys.Lines.Add('Реальная длина программы =  ' + FloatToStr(RealLengthProgram)+#13 + #10);
+        end;
+end;
+
+
+function THolsted.removalExcess(var line:string):string;
+var
+   i,j,k,tempIndex:Byte;
+begin
+   for i := 1 to operandsList.rowcount - 1 do
+      for j := 1 to operatorsList.rowcount - 1 do
+         if OperandsList.Cells[0,i] = OperatorsList.Cells[0,j] then
+         begin
+            for k := i to operandsList.rowcount - 2 do
+               OperandsList.Cells[0,k] := OperandsList.Cells[0,k+1];
+            operandsList.rowcount := operandsList.rowcount - 1;
+         end;
+   tempIndex := 0;
+   for i := 1 to Length(line) do
+     if (line[i] = ' ') then
+        tempIndex := i;
+   if (tempIndex <> 0) then
+      Delete(line,1,tempIndex);
+   if (line[Length(line)] = ')') or (line[Length(line)] = '}')   then
+      Delete(line,Length(line),1);
+   removalExcess := line;
+end;
+
+
+
+procedure THolsted.findRegex(findLine : string; var Grid:TStringGrid; n:Byte);
+var
+   RegExp: TRegExpr;
+   count,i: Integer;
+   line: string;
+   flag:Boolean;
+begin
+   RegExp := TRegExpr.Create;
+   RegExp.InputString := Code.Text;
+   RegExp.Expression := findLine;
+   line := ' ';
+   if RegExp.Exec(code.Text) then
+      repeat
+         line := RegExp.Match[n];
+         line := removalExcess(line);
+         i := 1;
+         flag := false;
+         while (i <= Grid.rowCount - 1) and (not flag) do
+         begin
+            if (Grid.Cells[0,i] = line) then
+            begin
+               count := strtoint(Grid.Cells[1,i]) + 1;
+               Grid.Cells[1,i] := IntToStr(count);
+               flag := True;
+            end
+            else
+               inc(i);
+         end;
+         if (not flag) then
+            with Grid do
+            begin
+               RowCount := RowCount + 1;
+               Cells[0,RowCount-1] := line;
+               Cells[1,RowCount-1] := '1';
+            end
+         else
+      until not RegExp.ExecNext;
+   RegExp.Free;
+end;
+
+procedure THolsted.find;
+begin
+   findRegex('\b(break|case|continue|default|do|else|enum|for|goto|if)\b',operatorsList,1);
+   findRegex('\b(return|sizeof|struct|switch|union|while)\b',operatorsList,1);
+   findRegex('\b(true|false|const|volatile)\b',operatorsList,1);
+   findRegex('(\.|\,|;)',operatorsList,1);
+   findRegex('\b(register|static|typedef|virtual)\b',operatorsList,1);
+   findRegex('\b(boolean|char|double|float|string|int|byte|long|short|void)\b',operandsList,1);
+   findRegex('\b(unsigned boolean|unsigned char|unsigned double|unsigned float|unsigned string|unsigned int|unsigned byte|unsigned long|unsigned short|unsigned void)\b',operandsList,1);
+   findRegex('\b(boolean |int |void |string |byte |char |float |double |long |short )[a-zA-Z_].*?\b',operandsList,0);
+   findRegex('(\+=|-=|\*=|\/=|%=|\|=|\^=|->|\+{1,2}|-{1,2}|={1,2}|%|<{1,3})',operatorsList,1);
+   findRegex('(%=|>=|<{1,3}=|>{1,3}=|\*|>{1,3}|&{1,2}|\|{1,2})',operatorsList,1);
+   findRegex('(''[a-zA-Z0-9_].*?'')',operatorsList,1);
+   findRegex('(\d+)',operatorsList,1);
+   findRegex('[\?]',operandsList,0);
+end;
+
+procedure THolsted.DeleteCommentsClick(Sender: TObject);
+var
+   FindStringWithDoubleSlash : TRegExpr;
+   FindMultilineComment : TRegExpr;
+begin
+   FindStringWithDoubleSlash := TRegExpr.Create;
+   FindStringWithDoubleSlash.Expression :=  '(\/\*(.*?)\*\/)|(//(.*?)\n)';  // Удаление однострочного комментария начиная с (//)
+   if (FindStringWithDoubleSlash.Exec(Code.Text)) then
+      repeat
+      until not FindStringWithDoubleSlash.ExecNext;
+   Code.Text:=FindStringWithDoubleSlash.Replace(code.Text, '', true);
+   FindMultilineComment := TRegExpr.Create;
+   FindMultilineComment.Expression :=  '"""\s*(.*?)\s*\"""';           // Удаление многострочного комментария начиная с (/* ...*/)
+   if (FindMultilineComment.Exec(Code.Text)) then
+      repeat
+      until not FindMultilineComment.ExecNext;
+   Code.Text := FindMultilineComment.Replace(code.Text, '', true);
+end;
+
+
+
+procedure THolsted.FormCreate(Sender: TObject);
+begin
+    Code.Clear;
+    ResultAnalys.Clear;
+end;
+
+procedure THolsted.LoadFromFileClick(Sender: TObject);
+begin
+   LoadFile.Filter := 'TxtFiles|*.txt|C files|*.c';
+   if (LoadFile.Execute) then
+      begin
+         Code.Lines.LoadFromFile(LoadFile.FileName);
+      end;
+end;
+
+
+
+end.

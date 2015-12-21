@@ -1,0 +1,110 @@
+unit HolstedC;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls,RegExpr;
+
+type
+  THolsted = class(TForm)
+    Code: TMemo;
+    ResultAnalys: TMemo;
+    LoadFromFile: TButton;
+    DeleteComments: TButton;
+    Analys: TButton;
+    question: TButton;
+    LoadFile: TOpenDialog;
+    procedure FormCreate(Sender: TObject);
+    procedure LoadFromFileClick(Sender: TObject);
+    procedure DeleteCommentsClick(Sender: TObject);
+    procedure AnalysClick(Sender: TObject);
+  private
+    function DeleteExcess(var line:string):string;
+
+  public
+    { Public declarations }
+  end;
+
+var
+  Holsted: THolsted;
+
+implementation
+
+{$R *.dfm}
+
+
+
+procedure THolsted.AnalysClick(Sender: TObject);
+begin
+    ResultAnalys.Lines.Add( ' Кол-во уникальных операторов = ' + #13 +#10 +
+            ' Кол-во уникальных операндов = ' + #13 +#10  +
+            ' Общее число операторов = ' + #13 +#10  +
+            ' Общее число операндов = ' + #13 +#10  +
+            ' Словарь программы = ' + #13 +#10  +
+            ' Длина программы = ' + #13 +#10  +
+            ' Объем программы = ' + #13 +#10  +
+            ' Потенциальный Объем программы =' + #13 +#10  +
+            ' Теоретическая длина программы =' + #13 +#10  +
+            ' Уровень программы = ' + #13 +#10  +
+            ' Уровень программы [2] = ' + #13 +#10  +
+            ' Интеллектуальное содержание алгоритма = ' + #13 +#10  +
+            ' Число требуемых интеллектуальных решений = ' + #13 +#10  +
+            ' Реальная длина программы = ');
+end;
+
+function THolsted.DeleteExcess(var line:string):string;
+var
+   i,tempIndex:Byte;
+begin
+   tempIndex := 0;
+   for i := 1 to Length(line) do
+     if (line[i] = ' ') then
+        tempIndex := i;
+   if (tempIndex <> 0) then
+      Delete(line,1,tempIndex);
+   if (line[Length(line)] = '(') or (line[Length(line)] = '{') then
+      Delete(line,Length(line),1);
+   DeleteExcess := line;
+end;
+
+procedure THolsted.DeleteCommentsClick(Sender: TObject);
+var
+   FindStringWithDoubleSlash : TRegExpr;
+   FindMultilineComment : TRegExpr;
+begin
+   FindStringWithDoubleSlash := TRegExpr.Create;
+   FindStringWithDoubleSlash.Expression :=  '(\/\*(.*?)\*\/)|(//(.*?)\n)';  // Удаление однострочного комментария начиная с (//)
+   if (FindStringWithDoubleSlash.Exec(Code.Text)) then
+      repeat
+      until not FindStringWithDoubleSlash.ExecNext;
+   Code.Text:=FindStringWithDoubleSlash.Replace(code.Text, '', true);
+   FindMultilineComment := TRegExpr.Create;
+   FindMultilineComment.Expression :=  '"""\s*(.*?)\s*\"""';           // Удаление многострочного комментария начиная с (/* ...*/)
+   if (FindMultilineComment.Exec(Code.Text)) then
+      repeat
+      until not FindMultilineComment.ExecNext;
+   Code.Text := FindMultilineComment.Replace(code.Text, '', true);
+
+end;
+
+
+
+procedure THolsted.FormCreate(Sender: TObject);
+begin
+    Code.Clear;
+    ResultAnalys.Clear;
+end;
+
+procedure THolsted.LoadFromFileClick(Sender: TObject);
+begin
+   LoadFile.Filter := 'TxtFiles|*.txt|C files|*.c';
+   if (LoadFile.Execute) then
+      begin
+         Code.Lines.LoadFromFile(LoadFile.FileName);
+      end;
+end;
+
+
+
+end.
