@@ -14,8 +14,6 @@ type
     DeleteComments: TButton;
     Analys: TButton;
     LoadFile: TOpenDialog;
-    Operators: TMemo;
-    Operands: TMemo;
     OperandsList: TStringGrid;
     OperatorsList: TStringGrid;
     procedure FormCreate(Sender: TObject);
@@ -25,7 +23,6 @@ type
   private
     procedure RegexOperandsAndOperators;
     procedure ComputeParameters;
-    Procedure Recording ( Grid : TstringGrid ; Memo :TMemo);
     procedure findRegex(findLine:string; var Grid:TStringGrid; n:Byte);
   public
     { Public declarations }
@@ -45,8 +42,6 @@ procedure THolsted.AnalysClick(Sender: TObject);
 begin
     RegexOperandsAndOperators;
     ComputeParameters;
-    Recording ( OperandsList , Operands );
-    Recording ( OperatorsList , Operators);
     Analys.Enabled := false;
 end;
 
@@ -96,20 +91,20 @@ begin
       RealLengthProgram  := VolumeProgram * VolumeProgram / PotencionalVolumeProgtram;
       with ResultAnalys do
         begin
-          ResultAnalys.Lines.Add('Число уникальных операторов программы =  ' + IntToStr(uniqueOperators)+#13 + #10);
-          ResultAnalys.Lines.Add('Число уникальных операндов программы =  ' + IntToStr(uniqueOperands)+#13 + #10);
-          ResultAnalys.Lines.Add('Oбщее число операторов в программе =  ' + IntToStr(countOperators)+#13 + #10);
-          ResultAnalys.Lines.Add('Oбщее число операндов в программе =  ' + IntToStr(countOperands) +#13 + #10);
-          ResultAnalys.Lines.Add('Словарь программы =  ' + FloatToStr(DictionaryProgram)+#13 + #10);
-          ResultAnalys.Lines.Add('Длина программы =  ' + FloatToStr(LengthProgram)+#13 + #10);
-          ResultAnalys.Lines.Add('Объем программы =  ' + FloatToStr(VolumeProgram)+#13 + #10);
-          ResultAnalys.Lines.Add('Потенциальный объем программы =  ' + FloatToStr(PotencionalVolumeProgtram)+#13 + #10);
-          ResultAnalys.Lines.Add('Теоретическая длина программы =  ' + FloatToStr(TheoreticalLengthProgtram)+#13 + #10);
-          ResultAnalys.Lines.Add('Уровень программы =  ' + FloatToStr(LVLProgram)+#13 + #10);
-          ResultAnalys.Lines.Add('Уровень программы[2] =  ' + FloatToStr(LVL2Program)+#13 + #10);
-          ResultAnalys.Lines.Add('Информационное содержание программы =  ' + FloatToStr(InformationContentProgram)+#13 + #10);
-          ResultAnalys.Lines.Add('Число требуемых интеллектуальных решений =  ' + FloatToStr(NumberOfSolutions)+#13 + #10);
-          ResultAnalys.Lines.Add('Реальная длина программы =  ' + FloatToStr(RealLengthProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г—ГЁГ±Г«Г® ГіГ­ГЁГЄГ Г«ГјГ­Г»Гµ Г®ГЇГҐГ°Г ГІГ®Г°Г®Гў ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + IntToStr(uniqueOperators)+#13 + #10);
+          ResultAnalys.Lines.Add('Г—ГЁГ±Г«Г® ГіГ­ГЁГЄГ Г«ГјГ­Г»Гµ Г®ГЇГҐГ°Г Г­Г¤Г®Гў ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + IntToStr(uniqueOperands)+#13 + #10);
+          ResultAnalys.Lines.Add('OГЎГ№ГҐГҐ Г·ГЁГ±Г«Г® Г®ГЇГҐГ°Г ГІГ®Г°Г®Гў Гў ГЇГ°Г®ГЈГ°Г Г¬Г¬ГҐ =  ' + IntToStr(countOperators)+#13 + #10);
+          ResultAnalys.Lines.Add('OГЎГ№ГҐГҐ Г·ГЁГ±Г«Г® Г®ГЇГҐГ°Г Г­Г¤Г®Гў Гў ГЇГ°Г®ГЈГ°Г Г¬Г¬ГҐ =  ' + IntToStr(countOperands) +#13 + #10);
+          ResultAnalys.Lines.Add('Г‘Г«Г®ГўГ Г°Гј ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(DictionaryProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г„Г«ГЁГ­Г  ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(LengthProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('ГЋГЎГєГҐГ¬ ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(VolumeProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('ГЏГ®ГІГҐГ­Г¶ГЁГ Г«ГјГ­Г»Г© Г®ГЎГєГҐГ¬ ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(PotencionalVolumeProgtram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г’ГҐГ®Г°ГҐГІГЁГ·ГҐГ±ГЄГ Гї Г¤Г«ГЁГ­Г  ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(TheoreticalLengthProgtram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г“Г°Г®ГўГҐГ­Гј ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(LVLProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г“Г°Г®ГўГҐГ­Гј ГЇГ°Г®ГЈГ°Г Г¬Г¬Г»[2] =  ' + FloatToStr(LVL2Program)+#13 + #10);
+          ResultAnalys.Lines.Add('Г€Г­ГґГ®Г°Г¬Г Г¶ГЁГ®Г­Г­Г®ГҐ Г±Г®Г¤ГҐГ°Г¦Г Г­ГЁГҐ ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(InformationContentProgram)+#13 + #10);
+          ResultAnalys.Lines.Add('Г—ГЁГ±Г«Г® ГІГ°ГҐГЎГіГҐГ¬Г»Гµ ГЁГ­ГІГҐГ«Г«ГҐГЄГІГіГ Г«ГјГ­Г»Гµ Г°ГҐГёГҐГ­ГЁГ© =  ' + FloatToStr(NumberOfSolutions)+#13 + #10);
+          ResultAnalys.Lines.Add('ГђГҐГ Г«ГјГ­Г Гї Г¤Г«ГЁГ­Г  ГЇГ°Г®ГЈГ°Г Г¬Г¬Г» =  ' + FloatToStr(RealLengthProgram)+#13 + #10);
         end;
 end;
 
@@ -188,18 +183,6 @@ begin
    Code.Text := FindMultilineComment.Replace(code.Text, '', true);
 end;
 
-Procedure THolsted.Recording ( Grid : TstringGrid ; Memo :TMemo);
-var
-  i : byte;
-  temp : string;
-begin
-   for I := 1 to Grid.rowCount - 1 do
-     begin
-       temp := Grid.Cells[0,i];
-       Memo.Lines.add(temp);
-     end;
-
-end;
 
 procedure THolsted.FormCreate(Sender: TObject);
 begin
